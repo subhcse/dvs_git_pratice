@@ -1,0 +1,29 @@
+---
+  - hosts: gppricingcheck
+  - name: "Read app node details from inventory"
+vars: 
+   shell_cmd: 
+            -"su - pricing" && 
+            - ls -lrt /gpwrk_/todays_prfiles/interface_data/price_20*
+      tasks:
+            - shell: "{{shell_cmd}}"
+      
+   - name: File need to copy form test db to prod if file is not avaliable
+vars: 
+   shell_copy_cmd:
+           scp -p {{ items }}interface_data/price_20*@{{ dict }}interface_data/
+       shell :
+           ls -lrt
+tasks: 
+         - shell: "{{shell_copy_cmd}}"
+           file : "file is not found"
+           when: file == "{{shell_copy_cmd}}" 
+           file_exist: "file is present"
+           when: file_exist == "{{shell}}" 
+set_fact:
+      test_db_hostnames="{{item}}"
+      hostname         ="{{dict}}"
+      with_items:
+          - "{{ test_db_hostnames }}"
+      with_dict:
+          - "{{ dict }}"
